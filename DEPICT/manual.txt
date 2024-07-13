@@ -1,0 +1,86 @@
+依赖
+Mac OS X 或 UNIX 操作系统（不支持 Microsoft Windows）
+Java SE 6（或更高版本）
+Java.com
+Python 版本 2.7（不支持 Python 版本 3 或更高版本）
+Python.org
+PIP（用于安装 Python 库）
+sudo easy_install pip
+Python 间隔树库
+sudo pip install intervaltree
+Pandas（版本 0.15.2 或更高版本）
+sudo pip install pandas
+PLINK 版本 1.9（8 月 1 日或更新版本）
+PLINK 版本 1.9
+描绘
+以下说明介绍了如何下载 DEPICT、在示例文件上测试运行它以及如何在 GWAS 汇总统计信息上运行它。
+
+下载 DEPICT
+下载压缩的 DEPICT 版本 1 rel194 文件，并将存档解压缩到您希望 DEPICT 工具位于系统上的位置。请注意，使用 DEPICT 时，可以将分析文件写入其他文件夹。请确保满足上述所有依赖项。如果您在 Broad Institute 运行 DEPICT，请参阅以下部分。
+
+测试运行 DEPICT
+以下步骤概述了如何测试运行 DEPICT 对 TESLOVICH 的低密度脂蛋白胆固醇 GWAS 汇总统计数据，Nature 2010。此示例在 1000 基因组计划试点阶段 DEPICT 版本和 1000 基因组计划第 3 阶段 DEPICT 版本中均可用。
+
+编辑DEPICT/example/ldl_teslovich_nature2010.cfg
+指向 PLINK 可执行文件（版本 1.9 或更高版本）在我们系统上的位置（例如plink_executable/usr/bin/plink)
+对 LDL 汇总统计量运行 DEPICT
+例如：./src/python/depict.py example/ldl_teslovich_nature2010.cfg
+调查结果（有关输出格式的说明，请参阅 Wiki）。
+DEPICT 位点ldl_teslovich_nature2010_loci.txt
+基因优先排序结果ldl_teslovich_nature2010_geneprioritization.txt
+基因集富集结果ldl_teslovich_nature2010_genesetenrichment.txt
+组织富集结果ldl_teslovich_nature2010_tissueenrichment.txt
+基于 GWAS 运行 DEPICT
+以下步骤允许您对 GWAS 汇总统计数据运行 DEPICT。我们建议您在此之前运行上述低密度脂蛋白胆固醇示例，以确保您满足运行 DEPICT 所需的所有依赖项。
+
+确保使用 hg19 基因组 SNP 位置
+创建一个“分析文件夹”，其中将存储特定于特征的 DEPICT 分析
+将模板配置文件复制到分析文件夹，并为配置文件指定一个更有意义的名称src/python/template.cfg
+编辑配置文件
+指向您的分析文件夹。这是输出文件将写入的目录analysis_path
+指向 GWAS 汇总统计数据文件。此文件可以是纯文本格式或 gzip 格式（即具有 .gz 扩展名）gwas_summary_statistics_file
+指定 GWAS 关联 p 值截止值 （）。我们建议使用 或association_pvalue_cutoff5e-81e-5
+指定标签，DEPICT 使用该标签命名所有输出文件 （label_for_output_files)
+在 GWAS 汇总统计数据文件中指定关联 p 值列的名称 （pvalue_col_name)
+指定标记列的名称 （）。格式：chr：pos，即。'6：2321'. 如果此列不存在，chr_col将使用pos_col，则如果为空，则保留marker_col_name
+指定染色体列的名称 （）。如果设置了上述内容，则留空chr_col_namemarker_col_name
+指定位置列 （） 的名称。如果设置了上述内容，则留空。请确保您的SNP位置使用人类基因组构建GRCh37（hg19）pos_col_namemarker_col_name
+指定 GWAS 汇总统计数据文件 （） 中使用的分隔符。选项有separator
+tab
+comma
+semicolon
+space
+指向 PLINK 1.9 可执行文件（8 月 1 日或更高版本）在系统上的位置（例如plink_executable/usr/bin/plink)
+如果您使用的是 DEPICT 数据部分以外的其他基因型数据，请指向 PLINK 二进制格式 1000 基因组计划基因型文件在系统上的位置。指定除扩展名之外的文件名的整个路径genotype_data_plink_prefix
+运行 DEPICT
+<path to DEPICT>/src/python/depict.py <path to your config file>
+调查已写入分析文件夹的结果。有关输出格式的详细信息，请参阅 Wiki
+文件中以 结尾的关联位点_loci.txt
+基因优先级导致文件以_geneprioritization.txt
+基因集富集导致文件以_genesetenrichment.txt
+组织富集导致文件以_tissueenrichment.txt
+在布罗德研究所描绘
+运行 LDL 示例
+将示例配置文件复制到您的工作目录和该目录/cvar/jhlab/tp/depict/example/ldl_teslovich_nature2010.cfgchange analysis_path
+使用qsub -e err -o out -cwd -l h_vmem=12g /cvar/jhlab/tp/depict/src/python/broad_run.sh python /cvar/jhlab/tp/depict/src/python/depict.py <your modified config file>.cfg
+在自己的 GWAS 上运行 DEPICT
+请按照上述步骤 1-4 操作
+使用
+use UGER
+qsub -e err -o out -cwd -l m_mem_free=2.5g -pe smp 6 /cvar/jhlab/tp/depict/src/python/broad_run.sh python /cvar/jhlab/tp/DEPICT/src/python/depict.py <your modified config file>.cfg
+请注意，如果修改每个插槽/线程使用的内存，DEPICT 至少需要 14GB 内存。
+
+故障 排除
+请将日志文件（以 ）和问题的简要描述发送给 Tune H Pers （tunepers@broadinstitute.org）。_log.txt
+
+DEPICT 的整体版本遵循 DEPICT 出版物。当前版本来自 Pers， Nature Communications， 2015，该版本遵循 DEPICT git 存储库 （） 的提交次数。最新的 1000 基因组计划试点阶段 DEPICT 版本是，最新的 1000 基因组计划第 3 阶段版本是 。v1git log --pretty=format:'' | wc -lrel138rel137
+
+如何引用
+Pers， Nature Communications 2015 年
+
+1000 基因组计划，因为 DEPICT 广泛使用他们的数据。
+
+这些示例中使用的数据
+在此示例中，来自 Teslovich， Nature 2010 的 LDL GWAS 汇总统计量用作输入。我们纳入了所有具有P<5e-8的SNP，并手动添加了染色体和位置列（hg19 / GRCh37）。
+
+1000 Genomes Consortium 试点发布和 3 期发布数据用于 DEPICT。如果您使用我们的工具，请记得引用他们的论文。
